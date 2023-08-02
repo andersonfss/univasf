@@ -1,0 +1,267 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+//salvar os bilhetes
+void salva_bilhetes(char nome_apos[], int quant_apos,int bilhetes[][6]){
+
+    FILE *arquivo;
+    arquivo = fopen("bilhetes.txt","a");
+    int i,j;
+    
+
+    fprintf(arquivo,"%d %s ",quant_apos,nome_apos);
+
+    for(i=0; i<quant_apos; i++){
+        for(j=0; j<6; j++){
+            fprintf(arquivo," %d",bilhetes[i][j]);
+        }
+        
+    }
+    fprintf(arquivo,"\n");
+
+
+    fclose(arquivo);
+}
+
+//----------------------------------------------------------------------
+
+//mostra os valora só para verificação
+void mostrar (char nome_apos[], int quant_apos,int bilhetes[][6]){
+
+    int i,j,aux;
+    printf("chacando os seu dados\n");
+    printf(" o seu nome e %s \n",nome_apos);
+    printf("o valor a pagar e R$ %d,00\n",quant_apos*4);
+    printf("os seu bilhetes sao:\n");
+    for(i=0; i<quant_apos; i++){
+        for(j=0; j<6; j++) {
+            printf("%d  ",bilhetes[i][j]);
+        }
+        printf("\n");
+    }
+    
+    while (1)
+    {
+        printf("voce gostaria de efetuar a(s) apostas?\n");
+    printf("tecle 1 par sim e 2 para nao\n");
+    scanf("%d",&aux);
+        if (aux==1)
+        {
+            salva_bilhetes(nome_apos,quant_apos,bilhetes);
+            break;
+        }else if (aux==2)
+            {
+                printf("\t\t\t\tque pena\n");
+                break;
+        }else{
+            printf("apicao invalida\n");
+        }
+    }
+    
+    
+    
+    
+}
+//-----------------------------------------------
+// checa se ouve ganhadores
+void checar_ganhadores(int resultado[]){
+    
+    int i,j,n,m,aux=0;
+    char nome[20];
+    FILE *arquivo;
+    arquivo = fopen("bilhetes.txt","r");
+
+    while(feof(arquivo) == 0){
+        fscanf(arquivo,"%d%s", &n,nome);
+        int bilhetes[n][6];
+        //printf("%d %s \n",n, nome);
+
+        for(i=0;i<n;i++){
+            for(j=0;j<6;j++){
+                fscanf(arquivo,"%d",&m);
+                bilhetes[i][j]=m;
+            }
+        }
+
+      
+      for(i=0;i<n;i++){
+            for(j=0;j<6;j++){
+                if(bilhetes[i][j]==resultado[j]){
+                  aux++;
+                }
+            }
+        }
+        if(aux==6){
+          printf("%s",nome);
+          break;
+        }else {
+          break;
+        }
+      
+    }
+    
+    fclose(arquivo);
+
+    arquivo=fopen("bilhetes.txt","w" );
+    fclose(arquivo);
+}
+//----------------------------------------------------------------------
+
+
+// ordenação dos bilhetes
+
+void ordenar_bilhetes(char nome_apos[], int quant_apos,int bilhetes[][6]){
+
+    int i, j,k, aux;
+//      laço para organizar a matriz
+        for (i=0;i<quant_apos;i++){
+            for (j=0; j<6; j++){
+                for (k=j+1;k<=5;k++){ 
+                    if (bilhetes[i][k] < bilhetes[i][j]){ 
+                        aux=bilhetes[i][j];
+                        bilhetes[i][j]=bilhetes[i][k];
+                        bilhetes[i][k]=aux;
+                    }
+                }
+            }
+        }
+        mostrar(nome_apos,quant_apos,bilhetes);
+        
+}
+//------------------------------------------------------------------------
+
+
+// cria os bilhetes
+void gerarBilhetes(char nome_apos[], int quant_apos){
+    int i,j,k, bilhetes[quant_apos][6];
+
+    srand(time(NULL));
+    for(i=0; i<quant_apos; i++){
+        for(j=0; j<6; j++) {
+            bilhetes[i][j]=rand()%60+1;
+        }
+    }
+//-----------------------------------------------------------------------
+//verifica se há numeros igual
+    for ( i = 0; i < quant_apos; i++)
+    {
+        for (j=0; j<6; j++){
+            for (k=j+1; k<=5; k++){
+                while(bilhetes[i][j] == bilhetes[i][k]){
+                    if (bilhetes[i][j] == bilhetes[i][k]){
+                        bilhetes[i][k]=rand()%60+1;
+                    }
+                } 
+            }
+        }
+    }
+
+    ordenar_bilhetes(nome_apos,quant_apos,bilhetes);
+}
+//fim de cria bilhetes
+
+// sorteio da mega sena
+
+void sorteio() {
+  int i,j,k,aux = 0,aux2 = 1, resultado[6];
+
+
+
+  FILE *arquivo;
+    arquivo = fopen("bilhetes.txt","a");
+    fprintf(arquivo, "%d ultimaLinha %d %d %d %d %d %d",aux2,aux,aux,aux,aux,aux,aux);
+
+  fclose(arquivo);
+
+    srand(time(NULL));
+  
+        for(i=0; i<6; i++) {
+            resultado[i]=rand()%60+1;
+        }
+    
+//-----------------------------------------------------------------------
+//verifica se há numeros igual
+  
+        for (i=0; i<6; i++){
+            for (k=j+1; k<=5; k++){
+                while(resultado[i] == resultado[k]){
+                    if (resultado[i] == resultado[k]){
+                        resultado[k]  =rand()%60+1;
+                    }
+                } 
+            }
+        }
+
+      for (j=0; j<6; j++){
+                for (k=j+1;k<=5;k++){ 
+                    if (resultado[k] < resultado[j]){ 
+                        aux=resultado[j];
+                        resultado[j]=resultado[k];
+                        resultado[k]=aux;
+                    }
+                }
+            }
+      for(i=0;i<6;i++){
+        printf("%d ",resultado[i]);
+      }
+    printf("\n");
+      
+      checar_ganhadores(resultado);
+}
+
+
+// fim de sorteio
+
+
+int main ()  {
+
+int n,a;
+char nome[20];
+
+    while (1)
+    {
+        
+
+    printf("\t\t MEGA SENA DA UNIVASF \n");
+    printf("tecle 1 para compra bilhete(s)\n");
+    printf("tecle 2 para realizar sorteio\n");
+    printf("tecle 0 para sair do\n");
+
+    scanf("%d",&a);
+
+    if (a==1)
+    {
+        printf("digite seu nome\n");
+        scanf("%s",nome);
+        printf("digite quantos bilhetes voce quer\n");
+        scanf("%d",&n);
+        if (n==0)
+        {
+            printf("opicao invalida\n");
+        }else
+        {
+            gerarBilhetes(nome,n);
+            
+        }
+        
+        
+    }else if (a==2)
+    {
+        printf("os numeros da mega sao  \n");
+        sorteio();
+        
+    }else if (a==0)
+    {
+        break;
+    }else{
+        printf("opicao invalida\n");
+    }
+        
+        
+    }
+    
+
+
+return 0;
+}
